@@ -65,7 +65,7 @@
                 <label class="text-xs text-slate-500">Backdate (optional)</label>
                 <input name="backdated_at" type="datetime-local" />
                 <button class="btn-success w-full text-white py-2 rounded-lg text-sm font-semibold">+ Credit</button>
-                <p class="text-[11px] text-slate-500">Amounts >= £10,000 require approval.</p>
+                <p class="text-[11px] text-slate-500">Credits under £10,000 post immediately; larger credits require super admin approval.</p>
             </form>
             <form method="POST" action="{{ route('admin.accounts.debit', $account) }}" class="glass rounded-xl p-4 space-y-2">@csrf
                 <label class="text-xs text-slate-500">Debit Amount (£)</label>

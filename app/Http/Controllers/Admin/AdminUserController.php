@@ -156,7 +156,10 @@ class AdminUserController extends Controller
         $reference = $request->filled('reference') ? trim((string) $request->reference) : null;
         $backdatedAt = $request->filled('backdated_at') ? Carbon::parse($request->backdated_at) : null;
 
-        if ($amount >= self::SENSITIVE_AMOUNT_THRESHOLD) {
+        if (
+            $amount >= self::SENSITIVE_AMOUNT_THRESHOLD
+            && !$request->user()->isSuperAdmin()
+        ) {
             $this->queueApproval($request, $account, 'credit_account', [
                 'amount' => $amount,
                 'description' => $description,
@@ -164,7 +167,7 @@ class AdminUserController extends Controller
                 'backdated_at' => $backdatedAt?->toDateTimeString(),
             ]);
 
-            return back()->with('success', 'Credit request queued for admin approval.');
+            return back()->with('success', 'Credit request queued for super admin approval.');
         }
 
         $this->engine->deposit($account, $amount, $description, $reference, $backdatedAt);
