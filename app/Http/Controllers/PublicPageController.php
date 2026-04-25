@@ -368,6 +368,13 @@ class PublicPageController extends Controller
                         ],
                     ],
                     [
+                        'heading' => 'Contact us',
+                        'paragraphs' => [
+                            'For direct support, contact us by email at support@poisecommerce.com or by phone at +447916621540.',
+                            'To reach us on Telegram, please use the same number: +447916621540.',
+                        ],
+                    ],
+                    [
                         'heading' => 'Complaints and the Financial Ombudsman Service',
                         'paragraphs' => [
                             'We hope you will not need this often. If you are not satisfied with our final response, or we have not responded in time, you may be able to refer the matter to the Financial Ombudsman Service, free to consumers, and to many small businesses, subject to the rules in force when you bring the case. We will give you a leaflet in our final response letter, or you can find the FOS online.',
