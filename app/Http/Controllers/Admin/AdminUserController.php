@@ -8,6 +8,7 @@ use App\Models\AdminActionApproval;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Notifications\AccountSuspendedNotification;
+use App\Notifications\WelcomeMessageNotification;
 use App\Services\AccountService;
 use App\Services\TransactionEngine;
 use Illuminate\Support\Carbon;
@@ -118,9 +119,15 @@ class AdminUserController extends Controller
     public function approveKyc(User $user)
     {
         $user->update(['kyc_status' => 'approved', 'account_status' => 'active']);
+        $createdAccount = false;
         // Create a checking account if user doesn't have one
         if ($user->accounts()->count() === 0) {
             $this->accountService->createAccount($user, 'checking');
+            $createdAccount = true;
+        }
+
+        if ($createdAccount && $user->hasVerifiedEmail()) {
+            $user->notify(new WelcomeMessageNotification());
         }
         return back()->with('success', 'KYC approved and account created.');
     }

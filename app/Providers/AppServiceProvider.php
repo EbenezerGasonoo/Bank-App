@@ -72,7 +72,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Event::listen(Verified::class, function (Verified $event): void {
-            $event->user->notify(new WelcomeMessageNotification());
+            if ($event->user->accounts()->exists()) {
+                $event->user->notify(new WelcomeMessageNotification());
+            }
         });
     }
 }
