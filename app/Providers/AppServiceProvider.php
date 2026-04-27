@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Models\LoginActivity;
 use App\Notifications\LoginOtpNotification;
-use App\Notifications\WelcomeMessageNotification;
+use App\Services\WelcomeEmailService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Hash;
@@ -72,9 +72,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Event::listen(Verified::class, function (Verified $event): void {
-            if ($event->user->accounts()->exists()) {
-                $event->user->notify(new WelcomeMessageNotification());
-            }
+            app(WelcomeEmailService::class)->sendIfEligible(
+                $event->user,
+                null,
+                request()?->ip()
+            );
         });
     }
 }
