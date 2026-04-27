@@ -40,6 +40,13 @@
                 <button class="w-full glass text-emerald-800 border-emerald-200 py-3 rounded-lg font-semibold text-sm bg-emerald-50 hover:bg-emerald-100/80 transition-all">Activate Account</button>
             </form>
             @endif
+            @if(auth()->user()?->isSuperAdmin() && !$user->isAdmin())
+            <form method="POST" action="{{ route('admin.users.delete', $user) }}" onsubmit="return confirm('Delete this user account permanently? This will remove all linked accounts and data. This action cannot be undone.');">
+                @csrf
+                @method('DELETE')
+                <button class="w-full text-red-700 py-3 rounded-lg font-semibold text-sm glass border-red-200 border hover:bg-red-50 transition-all">Delete User Account</button>
+            </form>
+            @endif
         </div>
     </div>
 

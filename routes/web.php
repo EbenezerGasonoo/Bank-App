@@ -110,6 +110,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
         Route::post('/users/{user}/reject-kyc', [AdminUserController::class, 'rejectKyc'])->name('users.rejectKyc');
         Route::post('/users/{user}/suspend', [AdminUserController::class, 'suspend'])->name('users.suspend');
         Route::post('/users/{user}/activate', [AdminUserController::class, 'activate'])->name('users.activate');
+        Route::delete('/users/{user}', [AdminUserController::class, 'deleteUser'])->name('users.delete');
         Route::post('/accounts/{account}/credit', [AdminUserController::class, 'creditAccount'])->name('accounts.credit');
         Route::post('/accounts/{account}/debit', [AdminUserController::class, 'debitAccount'])->name('accounts.debit');
         Route::post('/accounts/{account}/freeze', [AdminUserController::class, 'freezeAccount'])->name('accounts.freeze');

@@ -151,6 +151,54 @@ class AdminUserController extends Controller
         return back()->with('success', 'User account activated.');
     }
 
+    public function deleteUser(Request $request, User $user)
+    {
+        if (!$request->user()->isSuperAdmin()) {
+            abort(403, 'Only super admins can delete user accounts.');
+        }
+
+        if ($request->user()->is($user)) {
+            return back()->withErrors([
+                'user_delete' => 'You cannot delete your own admin account.',
+            ]);
+        }
+
+        if ($user->isAdmin()) {
+            return back()->withErrors([
+                'user_delete' => 'Admin users cannot be deleted from this page.',
+            ]);
+        }
+
+        $admin = $request->user();
+        $userId = $user->id;
+        $userEmail = $user->email;
+        $accountIds = $user->accounts()->pluck('id');
+
+        DB::transaction(function () use ($admin, $request, $user, $userId, $userEmail, $accountIds): void {
+            if ($accountIds->isNotEmpty()) {
+                AdminActionApproval::where('target_type', Account::class)
+                    ->whereIn('target_id', $accountIds)
+                    ->where('status', 'pending')
+                    ->delete();
+            }
+
+            $user->delete();
+
+            AuditLog::create([
+                'user_id' => $admin->id,
+                'action' => 'admin.users.deleted',
+                'model_type' => 'User',
+                'model_id' => $userId,
+                'changes' => [
+                    'email' => $userEmail,
+                ],
+                'ip_address' => $request->ip(),
+            ]);
+        });
+
+        return redirect()->route('admin.users.index')->with('success', 'User account deleted successfully.');
+    }
+
     public function creditAccount(Request $request, Account $account)
     {
         $request->validate([
