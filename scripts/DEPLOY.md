@@ -4,6 +4,7 @@ This project includes two deployment scripts:
 
 - `scripts/deploy.sh` - standard deployment
 - `scripts/deploy-zero-downtime.sh` - maintenance mode + bypass secret + safety recovery
+- `scripts/deploy-ssh-local-build.sh` - deploy from local machine (build assets locally, then upload via SSH)
 
 ## 1) One-time setup on server
 
@@ -57,4 +58,40 @@ rm -f public/hot
 npm ci
 npm run build
 composer deploy
+```
+
+## 5) SSH deploy for servers without Node/npm
+
+Use this when your server cannot run `npm`.
+
+Linux/macOS shell:
+
+```bash
+chmod +x scripts/deploy-ssh-local-build.sh
+./scripts/deploy-ssh-local-build.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-ssh-local-build.ps1
+```
+
+Defaults are set for your environment:
+
+- `SSH_TARGET=easyintern-api`
+- `REMOTE_DIR=~/poisecommerce.com`
+- `RUN_MIGRATIONS=true`
+- `RESTART_QUEUES=true`
+
+Override if needed:
+
+```bash
+SSH_TARGET=easyintern-api REMOTE_DIR=~/poisecommerce.com RUN_MIGRATIONS=false ./scripts/deploy-ssh-local-build.sh
+```
+
+PowerShell override example:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-ssh-local-build.ps1 -SshTarget easyintern-api -RemoteDir ~/poisecommerce.com -RunMigrations:$false -RestartQueues:$true
 ```
