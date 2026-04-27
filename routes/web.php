@@ -114,6 +114,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
         Route::post('/accounts/{account}/debit', [AdminUserController::class, 'debitAccount'])->name('accounts.debit');
         Route::post('/accounts/{account}/freeze', [AdminUserController::class, 'freezeAccount'])->name('accounts.freeze');
         Route::post('/accounts/{account}/unfreeze', [AdminUserController::class, 'unfreezeAccount'])->name('accounts.unfreeze');
+        Route::delete('/accounts/{account}', [AdminUserController::class, 'deleteAccount'])->name('accounts.delete');
 
         // Transactions
         Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');

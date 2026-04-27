@@ -17,13 +17,16 @@ class WelcomeMessageNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $accountNumber = $notifiable->primaryAccount()?->account_number ?? 'Not assigned yet';
+
         return (new MailMessage)
             ->subject('Welcome to Poise Commerce Bank')
-            ->greeting('Welcome ' . $notifiable->name . ',')
-            ->line('Your account has been created successfully.')
-            ->line('Please verify your email address to activate secure banking features.')
-            ->action('Verify Email', url('/email/verify'))
-            ->line('We are glad to have you with us.');
+            ->greeting('Dear ' . $notifiable->name . ',')
+            ->line('Welcome to Poise Commerce Bank Private Banking. Your email address has been verified successfully.')
+            ->line('Your account profile is now active. For your records, your details are as follows:')
+            ->line('Full Name: ' . $notifiable->name)
+            ->line('Account Number: ' . $accountNumber)
+            ->line('Thank you for placing your trust in us. We look forward to supporting your banking needs with the highest standard of service and discretion.');
     }
 }
 

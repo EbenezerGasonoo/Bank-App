@@ -89,6 +89,14 @@
                     <button class="btn-success w-full text-white py-2 rounded-lg text-sm font-semibold">✓ Unfreeze Account</button>
                 </form>
                 @endif
+                @if(auth()->user()?->isSuperAdmin())
+                <form method="POST" action="{{ route('admin.accounts.delete', $account) }}" onsubmit="return confirm('Delete this account permanently? This action cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button class="w-full text-red-700 py-2 rounded-lg text-sm font-semibold glass border-red-200 border hover:bg-red-50 transition-all">🗑 Delete Account</button>
+                </form>
+                <p class="text-[11px] text-slate-500">Only accounts with zero balance and no transaction/ledger history can be deleted.</p>
+                @endif
             </div>
         </div>
     </div>

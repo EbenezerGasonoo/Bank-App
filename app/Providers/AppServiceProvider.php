@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\LoginActivity;
 use App\Notifications\LoginOtpNotification;
+use App\Notifications\WelcomeMessageNotification;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
@@ -67,6 +69,10 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $event->user->notify(new LoginOtpNotification($plainOtp, 10));
+        });
+
+        Event::listen(Verified::class, function (Verified $event): void {
+            $event->user->notify(new WelcomeMessageNotification());
         });
     }
 }

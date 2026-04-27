@@ -3,7 +3,6 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use App\Notifications\WelcomeMessageNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -34,7 +33,6 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         $user->sendEmailVerificationNotification();
-        $user->notify(new WelcomeMessageNotification());
 
         return $user;
     }

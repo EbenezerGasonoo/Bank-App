@@ -12,6 +12,7 @@ use App\Services\AccountService;
 use App\Services\TransactionEngine;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller
 {
@@ -216,6 +217,63 @@ class AdminUserController extends Controller
     {
         $this->queueApproval($request, $account, 'unfreeze_account');
         return back()->with('success', 'Unfreeze request queued for admin approval.');
+    }
+
+    public function deleteAccount(Request $request, Account $account)
+    {
+        if (!$request->user()->isSuperAdmin()) {
+            abort(403, 'Only super admins can delete accounts.');
+        }
+
+        if ((float) $account->balance > 0) {
+            return back()->withErrors([
+                'account_delete' => 'Only accounts with a zero balance can be deleted.',
+            ]);
+        }
+
+        if ($account->sentTransactions()->exists() || $account->receivedTransactions()->exists()) {
+            return back()->withErrors([
+                'account_delete' => 'Accounts with transaction history cannot be deleted.',
+            ]);
+        }
+
+        if ($account->ledgerDebits()->exists() || $account->ledgerCredits()->exists()) {
+            return back()->withErrors([
+                'account_delete' => 'Accounts with ledger history cannot be deleted.',
+            ]);
+        }
+
+        if ($account->fdrs()->exists()) {
+            return back()->withErrors([
+                'account_delete' => 'Please close linked fixed deposits before deleting this account.',
+            ]);
+        }
+
+        $admin = $request->user();
+        $accountId = $account->id;
+        $accountNumber = $account->account_number;
+
+        DB::transaction(function () use ($admin, $request, $account, $accountId, $accountNumber): void {
+            AdminActionApproval::where('target_type', Account::class)
+                ->where('target_id', $accountId)
+                ->where('status', 'pending')
+                ->delete();
+
+            $account->delete();
+
+            AuditLog::create([
+                'user_id' => $admin->id,
+                'action' => 'admin.accounts.deleted',
+                'model_type' => 'Account',
+                'model_id' => $accountId,
+                'changes' => [
+                    'account_number' => $accountNumber,
+                ],
+                'ip_address' => $request->ip(),
+            ]);
+        });
+
+        return back()->with('success', 'Account deleted successfully.');
     }
 
     private function queueApproval(Request $request, Account $account, string $action, array $payload = []): void
